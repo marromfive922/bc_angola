@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Angola - Negócios</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        :root {
+            --primary: #534AB7;
+            --primary-dark: #3C3489;
+            --primary-light: #7B73D4;
+            --accent: #AFA9EC;
+            --bg-app: linear-gradient(160deg, #f4f2ff 0%, #eef1f8 40%, #f0f4fd 100%);
+            --bg-login: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --text-main: #1a1240;
+            --text-muted: #7c7c9a;
+            --white: #ffffff;
+            --error: #F09595;
+            --success: #27AE60;
+            --border-radius: 50px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #f0f2f5;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .bc { min-height: 100vh; display: flex; flex-direction: column; }
+        .screen { display: none; flex: 1; }
+        .screen.active { display: flex; flex-direction: column; }
+
+        /* ── LOGIN ── */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-login);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-screen::before {
+            content: '';
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, rgba(83, 74, 183, 0.3) 0%, transparent 70%);
+            top: -10%;
+            right: -10%;
+            pointer-events: none;
+        }
+
+        .login-box {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(70px);
+            z-index: 1;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lgt {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .lsub {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .fl {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+            padding-left: 4px;
+        }
+
+        .fi, .fsel {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 15px;
+            border: transparent;
+            border-radius: 50px;
+            background: rgba(26, 18, 64, 0.75) !important;
+            color: #ffffff !important;
+            transition: var(--transition);
+            outline: none;
+            margin-bottom: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* Estilo de foco solicitado: borda igual à da login-box */
+        .fi:focus, .fsel:focus {
+            background: rgba(26, 18, 64, 0.9) !important;
+            box-shadow: 0 0 0 1px solid rgba(255, 255, 255, 0.15);
+            outline:none;
+            border:none;
+        }
+
+        .fi:-webkit-autofill,
+        .fi:-webkit-autofill:hover,
+        .fi:-webkit-autofill:focus,
+        .fi:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px rgba(26, 18, 64, 0.9) inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s;
+            border: none !important;
+        }
+
+        .fsel option { background: #1a1240; color: #ffffff; }
+
+        .pw { position: relative; margin-bottom: 16px; }
+        .pw .fi { margin-bottom: 0; padding-right: 50px; }
+        .pt {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .pt:hover { color: #fff; }
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px -5px rgba(83, 74, 183, 0.5);
+            transition: var(--transition);
+            margin-top: 8px;
+        }
+
+        .btn-full:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(83, 74, 183, 0.6);
+            filter: brightness(1.1);
+        }
+
+        /* Links de navegação no login/registo */
+        .form-footer-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 0 4px;
+        }
+
+        .form-link {
+            font-size: 13px;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .form-link:hover {  text-decoration: underline; }
+
+        .lerr {
+            font-size: 13px;
+            color: var(--error);
+            text-align: center;
+            margin-top: 12px;
+            min-height: 20px;
+            font-weight: 500;
+        }
+
+        /* ── APP LAYOUT ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: #1a1240;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+
+        .ntab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .ntab.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(83, 74, 183, 0.4);
+        }
+
+        .app-bg {
+            flex: 1;
+            background: var(--bg-app);
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab.active { display: block; }
+
+        .pg-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        /* ── CARDS & GRIDS ── */
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(83, 74, 183, 0.05);
+            border: 1px solid rgba(83, 74, 183, 0.08);
+        }
+
+        .neg-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .neg-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+            .app-bg { padding: 12px; }
+            .login-box { padding: 30px 20px; }
+            .ntab { padding: 8px 12px; font-size: 12px; }
+            .ntab i { font-size: 16px; }
+            .ntab span { display: none; }
+            .ntab.active span { display: inline; }
+        }
+
+        .neg-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .neg-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(83, 74, 183, 0.15);
+        }
+
+        .neg-img { width: 100%; height: 180px; object-fit: cover; }
+        @media (max-width: 600px) { .neg-img { height: 130px; } }
+
+        .neg-img-ph {
+            width: 100%; height: 180px;
+            background: #f0f0f7;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--accent);
+        }
+
+        .neg-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+        .neg-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .neg-loc { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+        .neg-price { font-size: 18px; font-weight: 800; color: var(--primary); margin-top: auto; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .b-open { background: #e6f7ed; color: #1a7f43; }
+        .b-closed { background: #fff0f0; color: #c53030; }
+
+        /* ── FORMS ── */
+        .form-group { margin-bottom: 16px; }
+        .form-label { font-size: 13px; color: var(--primary); font-weight: 700; margin-bottom: 6px; display: block; }
+        
+        input[type=text], input[type=email], input[type=number], input[type=tel], input[type=password], textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            background: transparent;
+            color: var(--text-main);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-p { background: var(--primary); color: #fff; }
+        .btn-p:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-ghost { background: #f1f5f9; color: var(--text-main); }
+        .btn-ghost:hover { background: #e2e8f0; }
+
+        /* ── PROFILE ── */
+        .avatar-wrap { position: relative; cursor: pointer; }
+        .avatar {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 800; color: #fff;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-edit {
+            position: absolute; bottom: 0; right: 0;
+            width: 28px; height: 28px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; border: 2px solid #fff;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .info-key { color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .info-val { font-weight: 600; font-size: 14px; }
+
+        /* ── CHAT ── */
+        .chat-wrap { border-radius: var(--border-radius); overflow: hidden; border: 1px solid #e2e8f0; background: #fff; }
+        .bubbles { height: 350px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #f8fafc; }
+        .bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; position: relative; }
+        .b-me { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
+        .b-them { align-self: flex-start; background: #fff; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+
+        /* ── UTILS ── */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5; }
+
+        .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+        .photo-slot {
+            aspect-ratio: 1;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; overflow: hidden; position: relative;
+        }
+        .photo-slot img { width: 100%; height: 100%; object-fit: cover; }
+        .rm-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; }
+
+        .btn-logout { width: 25%; margin-top: 20px; transform: translateX(-50%);position: absolute; left: 50%;background: #fff; color: #ef4444; border: 1px solid #fee2e2; }
+        .btn-logout:hover { background: #fef2f2; }
+    </style>
+</head>
+<body>
+
+<div class="bc">
+    <!-- LOGIN SCREEN -->
+    <div id="s-login" class="screen active">
+        <div class="login-screen">
+            <div class="login-box">
+                <div class="lgt">BC</div>
+                <div class="lsub">Plataforma angolana de negócios</div>
+                
+                <!-- Login Form -->
+                <div id="lf">
+                    <label class="fl">Email</label>
+                    <input class="fi" type="email" id="l-email" placeholder="alessandro@gmail.com">
+                    
+                    <label class="fl">Palavra-passe</label>
+                    <div class="pw">
+                        <input class="fi" type="password" id="l-pass" placeholder="••••••••">
+                        <button class="pt" onclick="togglePass('l-pass', this)"><i class="ti ti-eye"></i></button>
+                    </div>
+                    
+                    <button class="btn-full" onclick="doLogin()">Entrar na Conta</button>
+                    
+                    <div class="form-footer-links">
+                        <button class="form-link" onclick="alert('Funcionalidade em desenvolvimento.')">Esqueci a senha</button>
+                        <button class="form-link" onclick="switchForm(true)">Não tem conta? Registar</button>
+                    </div>
+                    
+                    <div id="l-err" class="lerr"></div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="rf" style="display:none">
+                    <label class="fl">Nome Completo</label>
+                    <input class="fi" type="text" id="r-name" placeholder="alessandro Da Silva">
+                    
+                    <label class="fl">Email</label>
+                    <input class="fi" type="email" id="r-email" placeholder="alessandro@gmail.com">
+                    
+                    <label class="fl">Província</label>
+                    <select class="fsel" id="r-prov">
+                        <option value="">Selecionar...</option>
+                        <option>Bengo</option><option>Benguela</option><option>Bié</option><option>Cabinda</option>
+                        <option>Cuando</option><option>Cubango</option><option>Cunene</option><option>Huambo</option><option>Huíla</option>
+                        <option>Icolo e Bengo</option><option>Kuanza Norte</option><option>Kuanza Sul</option><option>Luanda</option><option>Lunda Norte</option>
+                        <option>Lunda Sul</option><option>Malanje</option><option>Moxico</option><option>Moxico Leste</option><option>Namibe</option>
+                        <option>Uíge</option><option>Zaire</option>
+                    </select>
+
+                    <label class="fl">Palavra-passe</label>
+                    <div class="pw">
+                        <input class="fi" type="password" id="r-pass" placeholder="Mínimo 6 caracteres">
+                        <button class="pt" onclick="togglePass('r-pass', this)"><i class="ti ti-eye"></i></button>
+                    </div>
+
+                    <label class="fl">Confirmar Palavra-passe</label>
+                    <div class="pw">
+                        <input class="fi" type="password" id="r-pass-confirm" placeholder="Repita a senha">
+                        <button class="pt" onclick="togglePass('r-pass-confirm', this)"><i class="ti ti-eye"></i></button>
+                    </div>
+
+                    <button class="btn-full" onclick="doReg()">Registar Agora</button>
+                    
+                    <div style="text-align:center; margin-top:20px">
+                        <button class="form-link" onclick="switchForm(false)">Já tenho conta</button>
+                    </div>
+                    
+                    <div id="r-err" class="lerr"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP SCREEN -->
+    <div id="s-app" class="screen">
+        <div class="topbar">
+            <div class="logo">BC <span style="font-size: 13px; color:#fff">Angola</span></div>
+            <div class="nav-tabs">
+                <button class="ntab active" id="nav-meus" onclick="goTab('meus', this)"><i class="ti ti-shopping-bag"></i> <span>Meus</span></button>
+                <button class="ntab" id="nav-fechados" onclick="goTab('fechados', this)"><i class="ti ti-lock"></i> <span>Fechados</span></button>
+                <button class="ntab" id="nav-outros" onclick="goTab('outros', this)"><i class="ti ti-world"></i> <span>Outros</span></button>
+                <button class="ntab" id="nav-msgs" onclick="goTab('msgs', this)"><i class="ti ti-message"></i> <span>Msgs</span></button>
+                <button class="ntab" id="nav-perfil" onclick="goTab('perfil', this)"><i class="ti ti-user"></i> <span>Perfil</span></button>
+            </div>
+        </div>
+
+        <div class="app-bg">
+            <!-- TAB: MEUS NEGÓCIOS -->
+            <div id="tab-meus" class="tab active">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px">
+                    <h2 class="pg-title" style="margin:0">Meus Negócios</h2>
+                    <button class="btn btn-p" onclick="toggleAddForm()"><i class="ti ti-plus"></i> Novo</button>
+                </div>
+
+                <div id="add-form" style="display:none" class="card">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+                        <h3 style="font-size:16px">Publicar Negócio</h3>
+                        <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()"><i class="ti ti-x"></i></button>
+                    </div>
+                    <div class="form-group"><label class="form-label">Nome do Produto</label><input type="text" id="n-nome" placeholder="Ex: iPhone 13 Pro Max"></div>
+                    <div class="form-group"><label class="form-label">Descrição</label><textarea id="n-desc" placeholder="Detalhes do produto..."></textarea></div>
+                    <div class="row2">
+                        <div class="form-group"><label class="form-label">Preço (Kz)</label><input type="number" id="n-preco" placeholder="0"></div>
+                        <div class="form-group"><label class="form-label">Localização</label><input type="text" id="n-local" placeholder="Ex: Lubango, Tchioco"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fotos (máx. 6)</label>
+                        <div class="photo-grid" id="photo-grid"></div>
+                        <input type="file" id="n-img" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+                    </div>
+                    
+                    <!-- Dados Bancários Predefinidos -->
+                    <div style="background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:16px; border:1px solid #e2e8f0">
+                        <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:8px; text-transform:uppercase">Dados de Pagamento (Perfil)</div>
+                        <div style="font-size:13px; margin-bottom:4px"><b>IBAN:</b> <span id="n-iban-preview"></span></div>
+                        <div style="font-size:13px"><b>Express:</b> <span id="n-express-preview"></span></div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:8px"><i class="ti ti-info-circle"></i> Estes dados serão vinculados ao negócio. Altere no seu perfil se necessário.</div>
+                    </div>
+
+                    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px">
+                        <button class="btn btn-ghost" onclick="toggleAddForm()">Cancelar</button>
+                        <button class="btn btn-p" onclick="addNegocio()">Publicar Agora</button>
+                    </div>
+                </div>
+                <div id="meus-list"></div>
+            </div>
+
+            <!-- TAB: FECHADOS -->
+            <div id="tab-fechados" class="tab">
+                <h2 class="pg-title">Negócios Fechados</h2>
+                <div id="fechados-list"></div>
+            </div>
+
+            <!-- TAB: OUTROS -->
+            <div id="tab-outros" class="tab">
+                <h2 class="pg-title">Explorar Negócios</h2>
+                <div id="outros-list"></div>
+            </div>
+
+            <!-- TAB: MENSAGENS -->
+            <div id="tab-msgs" class="tab">
+                <h2 class="pg-title">Minhas Conversas</h2>
+                <div id="msgs-list"></div>
+                <div id="chat-panel" style="display:none">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px">
+                        <button class="btn btn-ghost" onclick="backToMsgs()"><i class="ti ti-arrow-left"></i></button>
+                        <span id="chat-hd" style="font-weight:700"></span>
+                    </div>
+                    <div class="chat-wrap">
+                        <div class="bubbles" id="bubbles"></div>
+                        <div style="display:flex; gap:8px; padding:12px; border-top:1px solid #e2e8f0">
+                            <input type="text" id="chat-in" placeholder="Escreva aqui...">
+                            <button class="btn btn-p" onclick="sendMessage()"><i class="ti ti-send"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PERFIL -->
+            <div id="tab-perfil" class="tab">
+                <h2 class="pg-title">Meu Perfil</h2>
+                <div class="card">
+                    <div style="display:flex; align-items:center; gap:20px; margin-bottom:24px">
+                        <div class="avatar-wrap" onclick="document.getElementById('av-input').click()">
+                            <div class="avatar" id="p-av-wrap"><span id="p-av-initials"></span></div>
+                            <div class="avatar-edit"><i class="ti ti-camera"></i></div>
+                        </div>
+                        <input type="file" id="av-input" accept="image/*" style="display:none" onchange="updateAvatar(this)">
+                        <div>
+                            <div id="p-name" style="font-size:18px; font-weight:800"></div>
+                            <div id="p-email-d" style="font-size:14px; color:var(--text-muted)"></div>
+                            <div id="p-prov" style="font-size:14px; color:var(--text-muted)"></div>
+                        </div>
+                    </div>
+
+                    <div id="profile-view">
+                        <div class="info-row"><span class="info-key"><i class="ti ti-building-bank"></i> IBAN</span><span class="info-val" id="p-iban">Não definido</span></div>
+                        <div class="info-row"><span class="info-key"><i class="ti ti-device-mobile"></i> MCX Express</span><span class="info-val" id="p-express">Não definido</span></div>
+                        <div class="info-row"><span class="info-key"><i class="ti ti-shopping-cart"></i> Negócios Ativos</span><span class="info-val" id="p-count" style="color:var(--success)">0</span></div>
+                        <!-- Botão alinhado à esquerda -->
+                        <div style="display:flex; justify-content:flex-start; margin-top:20px">
+                            <button class="btn btn-p" onclick="editProfile()"><i class="ti ti-edit"></i> Editar Dados Bancários</button>
+                        </div>
+                    </div>
+
+                    <div id="profile-edit" style="display:none">
+                        <div class="form-group">
+                            <label class="form-label">Banco</label>
+                            <select id="e-banco">
+                                <option value="">Selecionar Banco...</option>
+                                <option>BIC – Banco BIC</option><option>BAI – Banco Angolano de Investimentos</option>
+                                <option>BFA – Banco de Fomento Angola</option><option>BPC – Banco de Poupança e Crédito</option>
+                                <option>ATL – Atlantico</option><option>BNI – Banco de Negócios Internacional</option>
+                                <option>SOL – Banco SOL</option><option>KEVE – Banco Keve</option>
+                                <option>BCI – Banco de Crédito Imobiliário</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">IBAN</label>
+                            <input type="text" id="e-iban" placeholder="AO06 0000 0000 0000 0000 0000 0">
+                            <small style="color:var(--text-muted); font-size:11px">Formato: AO + 23 dígitos (Total 25 caracteres)</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">MCX Express</label>
+                            <input type="tel" id="e-exp" placeholder="9XXXXXXXX">
+                            <small style="color:var(--text-muted); font-size:11px">Deve começar com 9 e ter 9 dígitos</small>
+                        </div>
+                        <div id="e-err" class="lerr" style="margin-bottom:10px"></div>
+                        <div style="display:flex; gap:10px">
+                            <button class="btn btn-ghost" style="flex:1" onclick="cancelEdit()">Cancelar</button>
+                            <button class="btn btn-p" style="flex:1" onclick="saveProfile()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-logout" onclick="doLogout()"><i class="ti ti-logout"></i> Sair da Conta</button>
+            </div>
+
+            <!-- TAB: DETALHE -->
+            <div id="tab-detalhe" class="tab">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px">
+                    <button class="btn btn-ghost" id="back-det"><i class="ti ti-arrow-left"></i></button>
+                    <h2 id="d-title" style="font-size:18px; margin:0"></h2>
+                </div>
+                <div id="d-gallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:10px; margin-bottom:20px"></div>
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+                        <div id="d-price" style="font-size:24px; font-weight:800; color:var(--primary)"></div>
+                        <span id="d-badge" class="badge"></span>
+                    </div>
+                    <div style="color:var(--text-muted); font-size:14px; margin-bottom:16px"><i class="ti ti-map-pin"></i> <span id="d-loc"></span></div>
+                    <div id="d-desc" style="font-size:15px; line-height:1.6; margin-bottom:20px"></div>
+                    
+                    <div id="d-pay" style="background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:20px; display:none">
+                        <div style="font-weight:700; margin-bottom:8px"><i class="ti ti-credit-card"></i> Dados de Pagamento</div>
+                        <div id="d-pay-info" style="font-size:14px; line-height:1.8"></div>
+                    </div>
+
+                    <button class="btn btn-p" id="d-msg" style="width:100%"><i class="ti ti-message"></i> Contactar Vendedor</button>
+                    <button class="btn btn-p" id="d-close" style="width:100%; background:var(--success); display:none"><i class="ti ti-check"></i> Marcar como Fechado</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- STATE ---
+    let currentUser = null;
+    const users = {}; // In-memory storage for demo
+    let negocios = [];
+    const conversations = {};
+    let currentChatKey = null;
+    let lastTab = 'outros';
+    let tempPhotos = [];
+
+    // --- UTILS ---
+    function togglePass(id, btn) {
+        const input = document.getElementById(id);
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        btn.innerHTML = isPass ? '<i class="ti ti-eye-off"></i>' : '<i class="ti ti-eye"></i>';
+    }
+
+    function switchForm(isReg) {
+        document.getElementById('lf').style.display = isReg ? 'none' : 'block';
+        document.getElementById('rf').style.display = isReg ? 'block' : 'none';
+        document.getElementById('l-err').textContent = '';
+        document.getElementById('r-err').textContent = '';
+    }
+
+    function validateIBAN(iban) {
+        const clean = iban.replace(/\s+/g, '').toUpperCase();
+        return /^AO\d{23}$/.test(clean) && clean.length === 25;
+    }
+
+    function validateExpress(num) {
+        const clean = num.replace(/\s+/g, '');
+        return /^9\d{8}$/.test(clean) && clean.length === 9;
+    }
+
+    // --- AUTH ---
+    function doLogin() {
+        const email = document.getElementById('l-email').value.trim();
+        const pass = document.getElementById('l-pass').value;
+        const err = document.getElementById('l-err');
+
+        if (!users[email]) { err.textContent = 'Conta não encontrada.'; return; }
+        if (users[email].pass !== pass) { err.textContent = 'Palavra-passe incorreta.'; return; }
+
+        currentUser = users[email];
+        enterApp();
+    }
+
+    function doReg() {
+        const name = document.getElementById('r-name').value.trim();
+        const email = document.getElementById('r-email').value.trim();
+        const prov = document.getElementById('r-prov').value;
+        const pass = document.getElementById('r-pass').value;
+        const confirm = document.getElementById('r-pass-confirm').value;
+        const err = document.getElementById('r-err');
+
+        if (!name || !email || !prov || !pass) { err.textContent = 'Preencha todos os campos.'; return; }
+        if (pass.length < 6) { err.textContent = 'A senha deve ter no mínimo 6 caracteres.'; return; }
+        if (pass !== confirm) { err.textContent = 'As palavras-passe não coincidem.'; return; }
+        if (users[email]) { err.textContent = 'Este email já está registado.'; return; }
+
+        users[email] = { name, email, prov, pass, iban: '', express: '', banco: '', avatar: '' };
+        currentUser = users[email];
+        enterApp();
+    }
+
+    function enterApp() {
+        document.getElementById('s-login').classList.remove('active');
+        document.getElementById('s-app').classList.add('active');
+        refreshUI();
+    }
+
+    function doLogout() {
+        currentUser = null;
+        document.getElementById('s-app').classList.remove('active');
+        document.getElementById('s-login').classList.add('active');
+        switchForm(false);
+    }
+
+    // --- NAVIGATION ---
+    function goTab(id, btn) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        document.querySelectorAll('.ntab').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+        
+        if (id === 'msgs') renderMsgs();
+        if (id === 'perfil') renderProfile();
+        if (id === 'meus') renderMeus();
+        if (id === 'outros') renderOutros();
+        if (id === 'fechados') renderFechados();
+    }
+
+    // --- BUSINESS LOGIC ---
+    function refreshUI() {
+        renderMeus();
+        renderOutros();
+        renderFechados();
+        renderProfile();
+    }
+
+    function renderMeus() {
+        const list = negocios.filter(n => n.ownerEmail === currentUser.email && n.status === 'open');
+        const container = document.getElementById('meus-list');
+        const isFormOpen = document.getElementById('add-form').style.display === 'block';
+        
+        if (isFormOpen) {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'block';
+            if (list.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="ti ti-shopping-bag"></i><p>Ainda não publicou nenhum negócio.</p></div>`;
+            } else {
+                container.innerHTML = `<div class="neg-grid">${list.map(n => renderCard(n)).join('')}</div>`;
+                attachCardEvents(container, 'meus');
+            }
+        }
+    }
+
+    function renderOutros() {
+        const list = negocios.filter(n => n.ownerEmail !== currentUser.email && n.status === 'open');
+        const container = document.getElementById('outros-list');
+        if (list.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="ti ti-world"></i><p>Nenhum negócio disponível no momento.</p></div>`;
+        } else {
+            container.innerHTML = `<div class="neg-grid">${list.map(n => renderCard(n)).join('')}</div>`;
+            attachCardEvents(container, 'outros');
+        }
+    }
+
+    function renderFechados() {
+        const list = negocios.filter(n => n.status === 'closed');
+        const container = document.getElementById('fechados-list');
+        if (list.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="ti ti-lock"></i><p>Nenhum negócio fechado ainda.</p></div>`;
+        } else {
+            container.innerHTML = `<div class="neg-grid">${list.map(n => renderCard(n)).join('')}</div>`;
+            attachCardEvents(container, 'fechados');
+        }
+    }
+
+    function renderCard(n) {
+        const img = n.photos.length ? `<img src="${n.photos[0]}" class="neg-img">` : `<div class="neg-img-ph"><i class="ti ti-photo" style="font-size:40px"></i><span>Sem foto</span></div>`;
+        return `
+            <div class="neg-card" data-id="${n.id}">
+                ${img}
+                <div class="neg-body">
+                    <div class="neg-name">${n.nome}</div>
+                    <div class="neg-loc"><i class="ti ti-map-pin"></i> ${n.local}</div>
+                    <div class="neg-price">${Number(n.preco).toLocaleString('pt-AO')} Kz</div>
+                    <span class="badge ${n.status === 'open' ? 'b-open' : 'b-closed'}">${n.status === 'open' ? 'Ativo' : 'Fechado'}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function attachCardEvents(container, from) {
+        container.querySelectorAll('.neg-card').forEach(card => {
+            card.onclick = () => openDetail(card.dataset.id, from);
+        });
+    }
+
+    function openDetail(id, from) {
+        lastTab = from;
+        const n = negocios.find(x => x.id === id);
+        if (!n) return;
+
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-detalhe').classList.add('active');
+
+        document.getElementById('d-title').textContent = n.nome;
+        document.getElementById('d-price').textContent = Number(n.preco).toLocaleString('pt-AO') + ' Kz';
+        document.getElementById('d-loc').textContent = n.local;
+        document.getElementById('d-desc').textContent = n.desc;
+        
+        const badge = document.getElementById('d-badge');
+        badge.textContent = n.status === 'open' ? 'Ativo' : 'Fechado';
+        badge.className = 'badge ' + (n.status === 'open' ? 'b-open' : 'b-closed');
+
+        const gal = document.getElementById('d-gallery');
+        gal.innerHTML = n.photos.map(p => `<img src="${p}" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px">`).join('');
+
+        const isOwner = n.ownerEmail === currentUser.email;
+        document.getElementById('d-msg').style.display = (isOwner || n.status === 'closed') ? 'none' : 'block';
+        document.getElementById('d-close').style.display = (isOwner && n.status === 'open') ? 'block' : 'none';
+
+        const payBox = document.getElementById('d-pay');
+        if (!isOwner && (n.iban || n.express)) {
+            payBox.style.display = 'block';
+            document.getElementById('d-pay-info').innerHTML = `
+                ${n.banco ? `<div><b>Banco:</b> ${n.banco}</div>` : ''}
+                ${n.iban ? `<div><b>IBAN:</b> ${n.iban}</div>` : ''}
+                ${n.express ? `<div><b>Express:</b> ${n.express}</div>` : ''}
+            `;
+        } else {
+            payBox.style.display = 'none';
+        }
+
+        document.getElementById('back-det').onclick = () => goTab(lastTab, document.getElementById('nav-' + lastTab));
+        document.getElementById('d-msg').onclick = () => startChat(n);
+        document.getElementById('d-close').onclick = () => {
+            n.status = 'closed';
+            refreshUI();
+            goTab('meus', document.getElementById('nav-meus'));
+        };
+    }
+
+    // --- ADD NEGOCIO ---
+    function toggleAddForm() {
+        const f = document.getElementById('add-form');
+        const list = document.getElementById('meus-list');
+        const isHidden = f.style.display === 'none';
+        
+        f.style.display = isHidden ? 'block' : 'none';
+        list.style.display = isHidden ? 'none' : 'block';
+
+        if (isHidden) {
+            tempPhotos = [];
+            renderPhotoGrid();
+            document.getElementById('n-iban-preview').textContent = currentUser.iban || 'Não definido no perfil';
+            document.getElementById('n-express-preview').textContent = currentUser.express || 'Não definido no perfil';
+        }
+    }
+
+    function handlePhoto(input) {
+        if (!input.files[0]) return;
+        if (tempPhotos.length >= 6) { alert('Máximo 6 fotos.'); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            tempPhotos.push(e.target.result);
+            renderPhotoGrid();
+            input.value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function renderPhotoGrid() {
+        const grid = document.getElementById('photo-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'photo-slot';
+            if (tempPhotos[i]) {
+                slot.innerHTML = `<img src="${tempPhotos[i]}"><button class="rm-btn" onclick="removePhoto(${i}, event)"><i class="ti ti-x"></i></button>`;
+            } else if (tempPhotos.length < 6 && i === tempPhotos.length) {
+                slot.innerHTML = `<i class="ti ti-plus" style="font-size:24px; color:var(--accent)"></i>`;
+                slot.onclick = () => document.getElementById('n-img').click();
+            }
+            grid.appendChild(slot);
+        }
+    }
+
+    function removePhoto(i, e) {
+        e.stopPropagation();
+        tempPhotos.splice(i, 1);
+        renderPhotoGrid();
+    }
+
+    function addNegocio() {
+        const nome = document.getElementById('n-nome').value.trim();
+        const desc = document.getElementById('n-desc').value.trim();
+        const preco = document.getElementById('n-preco').value;
+        const local = document.getElementById('n-local').value.trim();
+
+        if (!nome || !preco) { alert('Nome e preço são obrigatórios.'); return; }
+        
+        if (!currentUser.iban || !currentUser.express) {
+            alert('Configure o IBAN e Express no Perfil antes de publicar um negócio.');
+            goTab('perfil', document.getElementById('nav-perfil'));
+            return;
+        }
+
+        negocios.push({
+            id: 'neg-' + Date.now(),
+            owner: currentUser.name,
+            ownerEmail: currentUser.email,
+            nome, desc, preco, local,
+            photos: [...tempPhotos],
+            status: 'open',
+            iban: currentUser.iban,
+            express: currentUser.express,
+            banco: currentUser.banco
+        });
+
+        toggleAddForm();
+        ['n-nome', 'n-desc', 'n-preco', 'n-local'].forEach(id => document.getElementById(id).value = '');
+        refreshUI();
+    }
+
+    // --- PROFILE ---
+    function renderProfile() {
+        if (!currentUser) return;
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        const wrap = document.getElementById('p-av-wrap');
+        if (currentUser.avatar) {
+            wrap.innerHTML = `<img src="${currentUser.avatar}">`;
+        } else {
+            document.getElementById('p-av-initials').textContent = initials;
+        }
+
+        document.getElementById('p-name').textContent = currentUser.name;
+        document.getElementById('p-email-d').textContent = currentUser.email;
+        document.getElementById('p-prov').textContent = currentUser.prov;
+        document.getElementById('p-iban').textContent = currentUser.iban ? (currentUser.banco ? currentUser.banco + ' - ' + currentUser.iban : currentUser.iban) : 'Não definido';
+        document.getElementById('p-express').textContent = currentUser.express || 'Não definido';
+        document.getElementById('p-count').textContent = negocios.filter(n => n.ownerEmail === currentUser.email && n.status === 'open').length;
+    }
+
+    function updateAvatar(input) {
+        if (!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            currentUser.avatar = e.target.result;
+            renderProfile();
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function editProfile() {
+        document.getElementById('profile-view').style.display = 'none';
+        document.getElementById('profile-edit').style.display = 'block';
+        document.getElementById('e-banco').value = currentUser.banco || '';
+        document.getElementById('e-iban').value = currentUser.iban || '';
+        document.getElementById('e-exp').value = currentUser.express || '';
+        document.getElementById('e-err').textContent = '';
+    }
+
+    function cancelEdit() {
+        document.getElementById('profile-edit').style.display = 'none';
+        document.getElementById('profile-view').style.display = 'block';
+    }
+
+    function saveProfile() {
+        const iban = document.getElementById('e-iban').value.trim();
+        const exp = document.getElementById('e-exp').value.trim();
+        const banco = document.getElementById('e-banco').value;
+        const err = document.getElementById('e-err');
+
+        if (!iban || !exp) {
+            err.textContent = 'IBAN e Express são obrigatórios.';
+            return;
+        }
+
+        if (!validateIBAN(iban)) {
+            err.textContent = 'IBAN inválido. Verifique e tente novamente.';
+            return;
+        }
+
+        if (!validateExpress(exp)) {
+            err.textContent = 'Express inválido. Verifique e tente novamente.';
+            return;
+        }
+
+        currentUser.iban = iban;
+        currentUser.express = exp;
+        currentUser.banco = banco;
+        
+        cancelEdit();
+        renderProfile();
+    }
+
+    // --- CHAT ---
+    function startChat(n) {
+        const key = n.id + '_' + n.ownerEmail;
+        if (!conversations[key]) {
+            conversations[key] = { title: n.nome + ' (' + n.owner + ')', messages: [] };
+        }
+        currentChatKey = key;
+        goTab('msgs', document.getElementById('nav-msgs'));
+        openChat(key);
+    }
+
+    function renderMsgs() {
+        const list = document.getElementById('msgs-list');
+        const panel = document.getElementById('chat-panel');
+        list.style.display = 'block';
+        panel.style.display = 'none';
+
+        const keys = Object.keys(conversations);
+        if (keys.length === 0) {
+            list.innerHTML = `<div class="empty-state"><i class="ti ti-message"></i><p>Nenhuma conversa iniciada.</p></div>`;
+        } else {
+            list.innerHTML = keys.map(k => {
+                const c = conversations[k];
+                const last = c.messages.length ? c.messages[c.messages.length - 1].text : 'Inicie a conversa...';
+                return `<div class="card" style="cursor:pointer; margin-bottom:10px" onclick="openChat('${k}')">
+                    <div style="font-weight:700">${c.title}</div>
+                    <div style="font-size:13px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${last}</div>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    function openChat(key) {
+        currentChatKey = key;
+        document.getElementById('msgs-list').style.display = 'none';
+        document.getElementById('chat-panel').style.display = 'block';
+        document.getElementById('chat-hd').textContent = conversations[key].title;
+        renderBubbles();
+    }
+
+    function backToMsgs() {
+        document.getElementById('chat-panel').style.display = 'none';
+        document.getElementById('msgs-list').style.display = 'block';
+        renderMsgs();
+    }
+
+    function renderBubbles() {
+        const container = document.getElementById('bubbles');
+        const msgs = conversations[currentChatKey].messages;
+        container.innerHTML = msgs.map(m => `<div class="bubble ${m.mine ? 'b-me' : 'b-them'}">${m.text}</div>`).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-in');
+        const text = input.value.trim();
+        if (!text) return;
+        conversations[currentChatKey].messages.push({ text, mine: true });
+        input.value = '';
+        renderBubbles();
+    }
+
+    document.getElementById('chat-in')?.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+</script>
+
+</body>
+</html>
