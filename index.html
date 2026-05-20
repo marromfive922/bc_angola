@@ -702,172 +702,432 @@
 </div>
 
 <script>
-// --- STATE ---
-let currentUser = null;
-let users = {};
-let negocios = [];
-let conversations = {};
-let currentChatKey = null;
-let lastTab = 'outros';
-let tempPhotos = [];
+    // --- STATE ---
+    let currentUser = null;
+    const users = {}; // In-memory storage for demo
+    let negocios = [];
+    const conversations = {};
+    let currentChatKey = null;
+    let lastTab = 'outros';
+    let tempPhotos = [];
 
-// === LOCALSTORAGE FUNCTIONS ===
-function saveToLocalStorage() {
-    localStorage.setItem('bc_angola_users', JSON.stringify(users));
-    localStorage.setItem('bc_angola_negocios', JSON.stringify(negocios));
-    localStorage.setItem('bc_angola_conversations', JSON.stringify(conversations));
-}
-
-function loadFromLocalStorage() {
-    const savedUsers = localStorage.getItem('bc_angola_users');
-    const savedNegocios = localStorage.getItem('bc_angola_negocios');
-    const savedConversations = localStorage.getItem('bc_angola_conversations');
-
-    if (savedUsers) users = JSON.parse(savedUsers);
-    if (savedNegocios) negocios = JSON.parse(savedNegocios);
-    if (savedConversations) conversations = JSON.parse(savedConversations);
-}
-
-// === UTILS ===
-function togglePass(id, btn) {
-    const input = document.getElementById(id);
-    const isPass = input.type === 'password';
-    input.type = isPass ? 'text' : 'password';
-    btn.innerHTML = isPass ? '<i class="ti ti-eye-off"></i>' : '<i class="ti ti-eye"></i>';
-}
-
-// === AUTH ===
-function doLogin() {
-    const email = document.getElementById('l-email').value.trim();
-    const pass = document.getElementById('l-pass').value;
-    const err = document.getElementById('l-err');
-
-    if (!users[email]) {
-        err.textContent = 'Conta não encontrada.';
-        return;
-    }
-    if (users[email].pass !== pass) {
-        err.textContent = 'Palavra-passe incorreta.';
-        return;
+    // --- UTILS ---
+    function togglePass(id, btn) {
+        const input = document.getElementById(id);
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        btn.innerHTML = isPass ? '<i class="ti ti-eye-off"></i>' : '<i class="ti ti-eye"></i>';
     }
 
-    currentUser = users[email];
-    enterApp();
-}
-
-function doReg() {
-    const name = document.getElementById('r-name').value.trim();
-    const email = document.getElementById('r-email').value.trim();
-    const prov = document.getElementById('r-prov').value;
-    const pass = document.getElementById('r-pass').value;
-    const confirm = document.getElementById('r-pass-confirm').value;
-    const err = document.getElementById('r-err');
-
-    if (!name || !email || !prov || !pass) {
-        err.textContent = 'Preencha todos os campos.';
-        return;
-    }
-    if (pass.length < 6) {
-        err.textContent = 'A senha deve ter no mínimo 6 caracteres.';
-        return;
-    }
-    if (pass !== confirm) {
-        err.textContent = 'As palavras-passe não coincidem.';
-        return;
-    }
-    if (users[email]) {
-        err.textContent = 'Este email já está registado.';
-        return;
+    function switchForm(isReg) {
+        document.getElementById('lf').style.display = isReg ? 'none' : 'block';
+        document.getElementById('rf').style.display = isReg ? 'block' : 'none';
+        document.getElementById('l-err').textContent = '';
+        document.getElementById('r-err').textContent = '';
     }
 
-    users[email] = { 
-        name, 
-        email, 
-        prov, 
-        pass, 
-        iban: '', 
-        express: '', 
-        banco: '', 
-        avatar: '' 
-    };
-    
-    currentUser = users[email];
-    saveToLocalStorage();
-    enterApp();
-}
-
-function forgotPassword() {
-    const email = prompt("Digite o email da sua conta:");
-    if (!email) return;
-
-    if (users[email]) {
-        alert(`Sua senha é: ${users[email].pass}\n\nGuarde-a em um local seguro!`);
-    } else {
-        alert("Não existe conta com este email.");
+    function validateIBAN(iban) {
+        const clean = iban.replace(/\s+/g, '').toUpperCase();
+        return /^AO\d{23}$/.test(clean) && clean.length === 25;
     }
-}
 
-function enterApp() {
-    document.getElementById('s-login').classList.remove('active');
-    document.getElementById('s-app').classList.add('active');
-    refreshUI();
-}
+    function validateExpress(num) {
+        const clean = num.replace(/\s+/g, '');
+        return /^9\d{8}$/.test(clean) && clean.length === 9;
+    }
 
-function doLogout() {
-    currentUser = null;
-    document.getElementById('s-app').classList.remove('active');
-    document.getElementById('s-login').classList.add('active');
-    switchForm(false);
-}
+    // --- AUTH ---
+    function doLogin() {
+        const email = document.getElementById('l-email').value.trim();
+        const pass = document.getElementById('l-pass').value;
+        const err = document.getElementById('l-err');
 
-// === RESTO DO CÓDIGO (mantido igual, só adicionei saveToLocalStorage nos lugares certos) ===
+        if (!users[email]) { err.textContent = 'Conta não encontrada.'; return; }
+        if (users[email].pass !== pass) { err.textContent = 'Palavra-passe incorreta.'; return; }
 
-function switchForm(isReg) {
-    document.getElementById('lf').style.display = isReg ? 'none' : 'block';
-    document.getElementById('rf').style.display = isReg ? 'block' : 'none';
-    document.getElementById('l-err').textContent = '';
-    document.getElementById('r-err').textContent = '';
-}
+        currentUser = users[email];
+        enterApp();
+    }
 
-// ... (todo o resto do código permanece igual até o final)
+    function doReg() {
+        const name = document.getElementById('r-name').value.trim();
+        const email = document.getElementById('r-email').value.trim();
+        const prov = document.getElementById('r-prov').value;
+        const pass = document.getElementById('r-pass').value;
+        const confirm = document.getElementById('r-pass-confirm').value;
+        const err = document.getElementById('r-err');
 
-function addNegocio() {
-    // ... código existente ...
-    negocios.push({ ... }); // seu código atual
-    saveToLocalStorage();   // ← Adicionado
-    toggleAddForm();
-    // ...
-}
+        if (!name || !email || !prov || !pass) { err.textContent = 'Preencha todos os campos.'; return; }
+        if (pass.length < 6) { err.textContent = 'A senha deve ter no mínimo 6 caracteres.'; return; }
+        if (pass !== confirm) { err.textContent = 'As palavras-passe não coincidem.'; return; }
+        if (users[email]) { err.textContent = 'Este email já está registado.'; return; }
 
-function saveProfile() {
-    // ... código existente ...
-    currentUser.iban = iban;
-    currentUser.express = exp;
-    currentUser.banco = banco;
-    saveToLocalStorage();   // ← Adicionado
-    cancelEdit();
-    renderProfile();
-}
+        users[email] = { name, email, prov, pass, iban: '', express: '', banco: '', avatar: '' };
+        currentUser = users[email];
+        enterApp();
+    }
 
-function openDetail(id, from) {
-    // ... código existente ...
-    document.getElementById('d-close').onclick = () => {
-        const n = negocios.find(x => x.id === id);
-        if (n) n.status = 'closed';
-        saveToLocalStorage();   // ← Adicionado
+    function enterApp() {
+        document.getElementById('s-login').classList.remove('active');
+        document.getElementById('s-app').classList.add('active');
         refreshUI();
-        goTab('meus', document.getElementById('nav-meus'));
-    };
-}
+    }
 
-// Inicialização
-window.onload = function() {
-    loadFromLocalStorage();
-    
-    // Se quiser limpar tudo para teste:
-    // localStorage.clear();
-};
+    function doLogout() {
+        currentUser = null;
+        document.getElementById('s-app').classList.remove('active');
+        document.getElementById('s-login').classList.add('active');
+        switchForm(false);
+    }
+
+    // --- NAVIGATION ---
+    function goTab(id, btn) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        document.querySelectorAll('.ntab').forEach(n => n.classList.remove('active'));
+        btn.classList.add('active');
+        
+        if (id === 'msgs') renderMsgs();
+        if (id === 'perfil') renderProfile();
+        if (id === 'meus') renderMeus();
+        if (id === 'outros') renderOutros();
+        if (id === 'fechados') renderFechados();
+    }
+
+    // --- BUSINESS LOGIC ---
+    function refreshUI() {
+        renderMeus();
+        renderOutros();
+        renderFechados();
+        renderProfile();
+    }
+
+    function renderMeus() {
+        const list = negocios.filter(n => n.ownerEmail === currentUser.email && n.status === 'open');
+        const container = document.getElementById('meus-list');
+        const isFormOpen = document.getElementById('add-form').style.display === 'block';
+        
+        if (isFormOpen) {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'block';
+            if (list.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="ti ti-shopping-bag"></i><p>Ainda não publicou nenhum negócio.</p></div>`;
+            } else {
+                container.innerHTML = `<div class="neg-grid">${list.map(n => renderCard(n)).join('')}</div>`;
+                attachCardEvents(container, 'meus');
+            }
+        }
+    }
+
+    function renderOutros() {
+        const list = negocios.filter(n => n.ownerEmail !== currentUser.email && n.status === 'open');
+        const container = document.getElementById('outros-list');
+        if (list.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="ti ti-world"></i><p>Nenhum negócio disponível no momento.</p></div>`;
+        } else {
+            container.innerHTML = `<div class="neg-grid">${list.map(n => renderCard(n)).join('')}</div>`;
+            attachCardEvents(container, 'outros');
+        }
+    }
+
+    function renderFechados() {
+        const list = negocios.filter(n => n.status === 'closed');
+        const container = document.getElementById('fechados-list');
+        if (list.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="ti ti-lock"></i><p>Nenhum negócio fechado ainda.</p></div>`;
+        } else {
+            container.innerHTML = `<div class="neg-grid">${list.map(n => renderCard(n)).join('')}</div>`;
+            attachCardEvents(container, 'fechados');
+        }
+    }
+
+    function renderCard(n) {
+        const img = n.photos.length ? `<img src="${n.photos[0]}" class="neg-img">` : `<div class="neg-img-ph"><i class="ti ti-photo" style="font-size:40px"></i><span>Sem foto</span></div>`;
+        return `
+            <div class="neg-card" data-id="${n.id}">
+                ${img}
+                <div class="neg-body">
+                    <div class="neg-name">${n.nome}</div>
+                    <div class="neg-loc"><i class="ti ti-map-pin"></i> ${n.local}</div>
+                    <div class="neg-price">${Number(n.preco).toLocaleString('pt-AO')} Kz</div>
+                    <span class="badge ${n.status === 'open' ? 'b-open' : 'b-closed'}">${n.status === 'open' ? 'Ativo' : 'Fechado'}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function attachCardEvents(container, from) {
+        container.querySelectorAll('.neg-card').forEach(card => {
+            card.onclick = () => openDetail(card.dataset.id, from);
+        });
+    }
+
+    function openDetail(id, from) {
+        lastTab = from;
+        const n = negocios.find(x => x.id === id);
+        if (!n) return;
+
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-detalhe').classList.add('active');
+
+        document.getElementById('d-title').textContent = n.nome;
+        document.getElementById('d-price').textContent = Number(n.preco).toLocaleString('pt-AO') + ' Kz';
+        document.getElementById('d-loc').textContent = n.local;
+        document.getElementById('d-desc').textContent = n.desc;
+        
+        const badge = document.getElementById('d-badge');
+        badge.textContent = n.status === 'open' ? 'Ativo' : 'Fechado';
+        badge.className = 'badge ' + (n.status === 'open' ? 'b-open' : 'b-closed');
+
+        const gal = document.getElementById('d-gallery');
+        gal.innerHTML = n.photos.map(p => `<img src="${p}" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px">`).join('');
+
+        const isOwner = n.ownerEmail === currentUser.email;
+        document.getElementById('d-msg').style.display = (isOwner || n.status === 'closed') ? 'none' : 'block';
+        document.getElementById('d-close').style.display = (isOwner && n.status === 'open') ? 'block' : 'none';
+
+        const payBox = document.getElementById('d-pay');
+        if (!isOwner && (n.iban || n.express)) {
+            payBox.style.display = 'block';
+            document.getElementById('d-pay-info').innerHTML = `
+                ${n.banco ? `<div><b>Banco:</b> ${n.banco}</div>` : ''}
+                ${n.iban ? `<div><b>IBAN:</b> ${n.iban}</div>` : ''}
+                ${n.express ? `<div><b>Express:</b> ${n.express}</div>` : ''}
+            `;
+        } else {
+            payBox.style.display = 'none';
+        }
+
+        document.getElementById('back-det').onclick = () => goTab(lastTab, document.getElementById('nav-' + lastTab));
+        document.getElementById('d-msg').onclick = () => startChat(n);
+        document.getElementById('d-close').onclick = () => {
+            n.status = 'closed';
+            refreshUI();
+            goTab('meus', document.getElementById('nav-meus'));
+        };
+    }
+
+    // --- ADD NEGOCIO ---
+    function toggleAddForm() {
+        const f = document.getElementById('add-form');
+        const list = document.getElementById('meus-list');
+        const isHidden = f.style.display === 'none';
+        
+        f.style.display = isHidden ? 'block' : 'none';
+        list.style.display = isHidden ? 'none' : 'block';
+
+        if (isHidden) {
+            tempPhotos = [];
+            renderPhotoGrid();
+            document.getElementById('n-iban-preview').textContent = currentUser.iban || 'Não definido no perfil';
+            document.getElementById('n-express-preview').textContent = currentUser.express || 'Não definido no perfil';
+        }
+    }
+
+    function handlePhoto(input) {
+        if (!input.files[0]) return;
+        if (tempPhotos.length >= 6) { alert('Máximo 6 fotos.'); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            tempPhotos.push(e.target.result);
+            renderPhotoGrid();
+            input.value = '';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function renderPhotoGrid() {
+        const grid = document.getElementById('photo-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'photo-slot';
+            if (tempPhotos[i]) {
+                slot.innerHTML = `<img src="${tempPhotos[i]}"><button class="rm-btn" onclick="removePhoto(${i}, event)"><i class="ti ti-x"></i></button>`;
+            } else if (tempPhotos.length < 6 && i === tempPhotos.length) {
+                slot.innerHTML = `<i class="ti ti-plus" style="font-size:24px; color:var(--accent)"></i>`;
+                slot.onclick = () => document.getElementById('n-img').click();
+            }
+            grid.appendChild(slot);
+        }
+    }
+
+    function removePhoto(i, e) {
+        e.stopPropagation();
+        tempPhotos.splice(i, 1);
+        renderPhotoGrid();
+    }
+
+    function addNegocio() {
+        const nome = document.getElementById('n-nome').value.trim();
+        const desc = document.getElementById('n-desc').value.trim();
+        const preco = document.getElementById('n-preco').value;
+        const local = document.getElementById('n-local').value.trim();
+
+        if (!nome || !preco) { alert('Nome e preço são obrigatórios.'); return; }
+        
+        if (!currentUser.iban || !currentUser.express) {
+            alert('Configure o IBAN e Express no Perfil antes de publicar um negócio.');
+            goTab('perfil', document.getElementById('nav-perfil'));
+            return;
+        }
+
+        negocios.push({
+            id: 'neg-' + Date.now(),
+            owner: currentUser.name,
+            ownerEmail: currentUser.email,
+            nome, desc, preco, local,
+            photos: [...tempPhotos],
+            status: 'open',
+            iban: currentUser.iban,
+            express: currentUser.express,
+            banco: currentUser.banco
+        });
+
+        toggleAddForm();
+        ['n-nome', 'n-desc', 'n-preco', 'n-local'].forEach(id => document.getElementById(id).value = '');
+        refreshUI();
+    }
+
+    // --- PROFILE ---
+    function renderProfile() {
+        if (!currentUser) return;
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        const wrap = document.getElementById('p-av-wrap');
+        if (currentUser.avatar) {
+            wrap.innerHTML = `<img src="${currentUser.avatar}">`;
+        } else {
+            document.getElementById('p-av-initials').textContent = initials;
+        }
+
+        document.getElementById('p-name').textContent = currentUser.name;
+        document.getElementById('p-email-d').textContent = currentUser.email;
+        document.getElementById('p-prov').textContent = currentUser.prov;
+        document.getElementById('p-iban').textContent = currentUser.iban ? (currentUser.banco ? currentUser.banco + ' - ' + currentUser.iban : currentUser.iban) : 'Não definido';
+        document.getElementById('p-express').textContent = currentUser.express || 'Não definido';
+        document.getElementById('p-count').textContent = negocios.filter(n => n.ownerEmail === currentUser.email && n.status === 'open').length;
+    }
+
+    function updateAvatar(input) {
+        if (!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            currentUser.avatar = e.target.result;
+            renderProfile();
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function editProfile() {
+        document.getElementById('profile-view').style.display = 'none';
+        document.getElementById('profile-edit').style.display = 'block';
+        document.getElementById('e-banco').value = currentUser.banco || '';
+        document.getElementById('e-iban').value = currentUser.iban || '';
+        document.getElementById('e-exp').value = currentUser.express || '';
+        document.getElementById('e-err').textContent = '';
+    }
+
+    function cancelEdit() {
+        document.getElementById('profile-edit').style.display = 'none';
+        document.getElementById('profile-view').style.display = 'block';
+    }
+
+    function saveProfile() {
+        const iban = document.getElementById('e-iban').value.trim();
+        const exp = document.getElementById('e-exp').value.trim();
+        const banco = document.getElementById('e-banco').value;
+        const err = document.getElementById('e-err');
+
+        if (!iban || !exp) {
+            err.textContent = 'IBAN e Express são obrigatórios.';
+            return;
+        }
+
+        if (!validateIBAN(iban)) {
+            err.textContent = 'IBAN inválido. Verifique e tente novamente.';
+            return;
+        }
+
+        if (!validateExpress(exp)) {
+            err.textContent = 'Express inválido. Verifique e tente novamente.';
+            return;
+        }
+
+        currentUser.iban = iban;
+        currentUser.express = exp;
+        currentUser.banco = banco;
+        
+        cancelEdit();
+        renderProfile();
+    }
+
+    // --- CHAT ---
+    function startChat(n) {
+        const key = n.id + '_' + n.ownerEmail;
+        if (!conversations[key]) {
+            conversations[key] = { title: n.nome + ' (' + n.owner + ')', messages: [] };
+        }
+        currentChatKey = key;
+        goTab('msgs', document.getElementById('nav-msgs'));
+        openChat(key);
+    }
+
+    function renderMsgs() {
+        const list = document.getElementById('msgs-list');
+        const panel = document.getElementById('chat-panel');
+        list.style.display = 'block';
+        panel.style.display = 'none';
+
+        const keys = Object.keys(conversations);
+        if (keys.length === 0) {
+            list.innerHTML = `<div class="empty-state"><i class="ti ti-message"></i><p>Nenhuma conversa iniciada.</p></div>`;
+        } else {
+            list.innerHTML = keys.map(k => {
+                const c = conversations[k];
+                const last = c.messages.length ? c.messages[c.messages.length - 1].text : 'Inicie a conversa...';
+                return `<div class="card" style="cursor:pointer; margin-bottom:10px" onclick="openChat('${k}')">
+                    <div style="font-weight:700">${c.title}</div>
+                    <div style="font-size:13px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${last}</div>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    function openChat(key) {
+        currentChatKey = key;
+        document.getElementById('msgs-list').style.display = 'none';
+        document.getElementById('chat-panel').style.display = 'block';
+        document.getElementById('chat-hd').textContent = conversations[key].title;
+        renderBubbles();
+    }
+
+    function backToMsgs() {
+        document.getElementById('chat-panel').style.display = 'none';
+        document.getElementById('msgs-list').style.display = 'block';
+        renderMsgs();
+    }
+
+    function renderBubbles() {
+        const container = document.getElementById('bubbles');
+        const msgs = conversations[currentChatKey].messages;
+        container.innerHTML = msgs.map(m => `<div class="bubble ${m.mine ? 'b-me' : 'b-them'}">${m.text}</div>`).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-in');
+        const text = input.value.trim();
+        if (!text) return;
+        conversations[currentChatKey].messages.push({ text, mine: true });
+        input.value = '';
+        renderBubbles();
+    }
+
+    document.getElementById('chat-in')?.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
 </script>
+
 
 </body>
 </html>
